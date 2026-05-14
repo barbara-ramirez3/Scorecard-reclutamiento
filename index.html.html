@@ -1,0 +1,404 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Score Card — Reclutamiento</title>
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@tabler/icons-webfont@2.44.0/tabler-icons.min.css">
+<style>
+  :root {
+    --font-sans: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+    --color-text-primary: #111827;
+    --color-text-secondary: #6B7280;
+    --color-text-tertiary: #9CA3AF;
+    --color-background-primary: #ffffff;
+    --color-background-secondary: #F9FAFB;
+    --color-border-primary: #D1D5DB;
+    --color-border-secondary: #E5E7EB;
+    --color-border-tertiary: #F3F4F6;
+    --border-radius-md: 8px;
+    --border-radius-lg: 12px;
+  }
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body { font-family: var(--font-sans); background: #F3F4F6; min-height: 100vh; padding: 2rem 1rem; }
+  .container { max-width: 860px; margin: 0 auto; }
+  .app { padding: 1rem 0; }
+  .header { display: flex; align-items: center; gap: 12px; margin-bottom: 1.5rem; }
+  .header h1 { font-size: 20px; font-weight: 600; color: var(--color-text-primary); }
+  .tabs { display: flex; gap: 8px; margin-bottom: 1.5rem; }
+  .tab { padding: 7px 18px; border-radius: var(--border-radius-md); border: 1px solid var(--color-border-secondary); background: var(--color-background-primary); color: var(--color-text-secondary); font-size: 13px; cursor: pointer; transition: all 0.15s; }
+  .tab.active { background: #185FA5; color: #fff; border-color: #185FA5; font-weight: 500; }
+  .card { background: var(--color-background-primary); border: 1px solid var(--color-border-secondary); border-radius: var(--border-radius-lg); padding: 1.25rem 1.5rem; margin-bottom: 1rem; box-shadow: 0 1px 3px rgba(0,0,0,0.06); }
+  .view-tabs { display: flex; gap: 0; margin-bottom: 1rem; border: 1px solid var(--color-border-secondary); border-radius: var(--border-radius-md); overflow: hidden; width: fit-content; }
+  .view-tab { padding: 7px 20px; font-size: 13px; cursor: pointer; background: var(--color-background-primary); color: var(--color-text-secondary); border: none; transition: all 0.15s; }
+  .view-tab.active { background: var(--color-background-secondary); color: var(--color-text-primary); font-weight: 500; }
+  .candidate-inputs { display: grid; grid-template-columns: repeat(3, 1fr); gap: 8px; margin-bottom: 1rem; }
+  .input-group { display: flex; flex-direction: column; gap: 4px; }
+  .input-label { font-size: 11px; color: var(--color-text-secondary); font-weight: 500; text-transform: uppercase; letter-spacing: 0.04em; }
+  .cand-input { font-size: 13px; padding: 7px 10px; border-radius: var(--border-radius-md); border: 1px solid var(--color-border-secondary); background: var(--color-background-primary); color: var(--color-text-primary); width: 100%; outline: none; }
+  .cand-input:focus { border-color: #185FA5; }
+  .col-header { display: grid; grid-template-columns: 1fr repeat(3, 90px); gap: 8px; margin-bottom: 4px; }
+  .col-label { font-size: 11px; color: var(--color-text-tertiary); text-align: center; font-weight: 600; }
+  .ev-section { margin-bottom: 8px; }
+  .ev-section-title { font-size: 12px; font-weight: 600; color: var(--color-text-secondary); margin-bottom: 6px; padding: 4px 0; border-bottom: 1px solid var(--color-border-tertiary); }
+  .competencia-row { display: grid; grid-template-columns: 1fr repeat(3, 90px); gap: 8px; align-items: center; padding: 6px 0; border-bottom: 1px solid var(--color-border-tertiary); }
+  .competencia-row:last-child { border-bottom: none; }
+  .comp-label { font-size: 13px; color: var(--color-text-primary); }
+  .score-cell { display: flex; justify-content: center; }
+  .score-buttons { display: flex; gap: 3px; }
+  .score-btn { width: 24px; height: 24px; border-radius: 5px; border: 1px solid var(--color-border-secondary); background: var(--color-background-secondary); color: var(--color-text-secondary); font-size: 11px; cursor: pointer; display: flex; align-items: center; justify-content: center; font-weight: 500; transition: all 0.1s; }
+  .score-btn.s1 { background: #FAECE7; color: #993C1D; border-color: #D85A30; }
+  .score-btn.s2 { background: #FAEEDA; color: #854F0B; border-color: #BA7517; }
+  .score-btn.s3 { background: #EAF3DE; color: #3B6D11; border-color: #639922; }
+  .score-btn.s4 { background: #E1F5EE; color: #0F6E56; border-color: #1D9E75; }
+  .total-row { display: grid; grid-template-columns: 1fr repeat(3, 90px); gap: 8px; margin-top: 12px; padding-top: 12px; border-top: 1px solid var(--color-border-secondary); align-items: center; }
+  .total-label { font-size: 13px; font-weight: 600; color: var(--color-text-primary); }
+  .score-display { display: flex; flex-direction: column; align-items: center; gap: 3px; }
+  .score-bar-wrap { width: 60px; height: 4px; background: var(--color-background-secondary); border-radius: 2px; overflow: hidden; }
+  .score-bar { height: 100%; border-radius: 2px; }
+  .nota-prev { background: #E6F1FB; border-radius: var(--border-radius-md); padding: 10px 14px; margin-bottom: 12px; font-size: 12px; color: #185FA5; line-height: 1.7; border: 1px solid #BFDBFE; }
+  .notas-section { margin-top: 1.5rem; }
+  .notas-title { font-size: 13px; font-weight: 600; color: var(--color-text-primary); margin-bottom: 12px; display: flex; align-items: center; gap: 8px; }
+  .notas-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 12px; }
+  .nota-cand { display: flex; flex-direction: column; gap: 8px; }
+  .nota-cand-name { font-size: 11px; font-weight: 600; color: var(--color-text-secondary); text-align: center; padding-bottom: 4px; border-bottom: 1px solid var(--color-border-tertiary); }
+  .nota-block { border-radius: var(--border-radius-md); overflow: hidden; border: 1px solid var(--color-border-secondary); }
+  .nota-block-header { display: flex; align-items: center; gap: 6px; padding: 6px 10px; font-size: 11px; font-weight: 600; }
+  .nota-block.sobresaliente .nota-block-header { background: #EAF3DE; color: #3B6D11; }
+  .nota-block.redflag .nota-block-header { background: #FCEBEB; color: #A32D2D; }
+  .nota-textarea { width: 100%; border: none; background: var(--color-background-secondary); color: var(--color-text-primary); font-size: 12px; font-family: var(--font-sans); padding: 8px 10px; resize: none; line-height: 1.5; outline: none; }
+  .nota-textarea::placeholder { color: var(--color-text-tertiary); }
+  .decision-block { border-radius: var(--border-radius-md); overflow: hidden; border: 1px solid var(--color-border-secondary); }
+  .decision-header { padding: 6px 10px; font-size: 11px; font-weight: 600; background: var(--color-background-secondary); color: var(--color-text-secondary); display: flex; align-items: center; gap: 6px; }
+  .decision-btns { display: flex; }
+  .decision-btn { flex: 1; padding: 8px 6px; font-size: 12px; font-weight: 600; border: none; cursor: pointer; background: var(--color-background-primary); color: var(--color-text-secondary); border-top: 1px solid var(--color-border-secondary); transition: all 0.15s; }
+  .decision-btn:first-child { border-right: 1px solid var(--color-border-secondary); }
+  .decision-btn.si.active { background: #EAF3DE; color: #3B6D11; }
+  .decision-btn.no.active { background: #FCEBEB; color: #A32D2D; }
+  .decision-razon { width: 100%; border: none; border-top: 1px solid var(--color-border-secondary); background: #FFF8F8; color: var(--color-text-primary); font-size: 12px; font-family: var(--font-sans); padding: 8px 10px; resize: none; line-height: 1.5; outline: none; display: none; }
+  .decision-razon::placeholder { color: var(--color-text-tertiary); }
+  .decision-razon.visible { display: block; }
+  .export-bar { margin-top: 1.5rem; padding-top: 1rem; border-top: 1px solid var(--color-border-secondary); display: flex; align-items: center; justify-content: space-between; flex-wrap: wrap; gap: 8px; }
+  .export-btn { display: flex; align-items: center; gap: 8px; padding: 9px 22px; border-radius: var(--border-radius-md); background: #185FA5; color: #fff; border: none; font-size: 13px; font-weight: 600; cursor: pointer; transition: background 0.15s; }
+  .export-btn:hover { background: #1350891; }
+  .export-hint { font-size: 12px; color: var(--color-text-tertiary); }
+  .modal-overlay { position: fixed; inset: 0; background: rgba(0,0,0,0.45); z-index: 100; display: flex; align-items: center; justify-content: center; padding: 1rem; }
+  .modal { background: var(--color-background-primary); border-radius: var(--border-radius-lg); width: 100%; max-width: 560px; max-height: 90vh; overflow-y: auto; box-shadow: 0 12px 40px rgba(0,0,0,0.2); }
+  .modal-header { padding: 1rem 1.25rem; border-bottom: 1px solid var(--color-border-secondary); display: flex; align-items: center; justify-content: space-between; }
+  .modal-title { font-size: 15px; font-weight: 600; color: var(--color-text-primary); }
+  .modal-close { background: none; border: none; cursor: pointer; color: var(--color-text-tertiary); font-size: 18px; padding: 2px 6px; border-radius: 4px; }
+  .modal-body { padding: 1.25rem; }
+  .export-card { background: var(--color-background-secondary); border-radius: var(--border-radius-md); padding: 1rem; margin-bottom: 12px; border: 1px solid var(--color-border-secondary); }
+  .export-card-header { display: flex; align-items: center; justify-content: space-between; margin-bottom: 10px; }
+  .export-card-name { font-size: 14px; font-weight: 600; color: var(--color-text-primary); }
+  .export-card-score { font-size: 20px; font-weight: 600; }
+  .export-cat-row { display: flex; align-items: center; gap: 8px; margin: 5px 0; }
+  .export-cat-label { font-size: 12px; color: var(--color-text-secondary); width: 140px; flex-shrink: 0; }
+  .export-mini-wrap { flex: 1; height: 5px; background: var(--color-border-secondary); border-radius: 3px; overflow: hidden; }
+  .export-mini-bar { height: 100%; border-radius: 3px; }
+  .export-mini-val { font-size: 11px; color: var(--color-text-tertiary); width: 36px; text-align: right; }
+  .export-nota { margin-top: 8px; }
+  .export-nota-row { display: flex; gap: 6px; align-items: flex-start; margin: 4px 0; }
+  .export-nota-text { font-size: 12px; color: var(--color-text-secondary); line-height: 1.4; }
+  .export-decision { margin-top: 10px; padding: 8px 12px; border-radius: var(--border-radius-md); font-size: 12px; font-weight: 600; }
+  .export-decision.si { background: #EAF3DE; color: #3B6D11; }
+  .export-decision.no { background: #FCEBEB; color: #A32D2D; }
+  .export-footer { display: flex; gap: 8px; margin-top: 1rem; }
+  .copy-btn { flex: 1; padding: 9px 16px; border-radius: var(--border-radius-md); border: 1px solid var(--color-border-secondary); background: var(--color-background-primary); color: var(--color-text-primary); font-size: 13px; cursor: pointer; font-weight: 500; }
+  .copy-btn.primary { background: #185FA5; color: #fff; border-color: #185FA5; }
+  .copy-success { font-size: 12px; color: #1D9E75; text-align: center; margin-top: 8px; display: none; font-weight: 500; }
+  .comparativo { display: grid; grid-template-columns: repeat(3, 1fr); gap: 12px; }
+  .cand-card { background: var(--color-background-primary); border: 1px solid var(--color-border-secondary); border-radius: var(--border-radius-lg); padding: 1rem; }
+  .cand-card.winner { border: 2px solid #1D9E75; }
+  .winner-badge { font-size: 10px; background: #E1F5EE; color: #0F6E56; padding: 2px 10px; border-radius: 20px; font-weight: 600; display: inline-block; margin-bottom: 6px; }
+  .cand-name { font-size: 14px; font-weight: 600; color: var(--color-text-primary); margin-bottom: 4px; }
+  .cand-total { font-size: 24px; font-weight: 600; margin: 6px 0 2px; }
+  .mini-bar-row { display: flex; align-items: center; gap: 8px; margin: 5px 0; }
+  .mini-bar-label { font-size: 11px; color: var(--color-text-secondary); width: 80px; flex-shrink: 0; }
+  .mini-bar-wrap { flex: 1; height: 6px; background: var(--color-background-secondary); border-radius: 3px; overflow: hidden; }
+  .mini-bar { height: 100%; border-radius: 3px; }
+  .mini-val { font-size: 11px; color: var(--color-text-secondary); width: 28px; text-align: right; }
+  .comp-decision-pill { display: inline-flex; align-items: center; gap: 4px; font-size: 11px; font-weight: 600; padding: 3px 10px; border-radius: 20px; margin: 4px 2px 0; }
+  .comp-decision-pill.si { background: #EAF3DE; color: #3B6D11; }
+  .comp-decision-pill.no { background: #FCEBEB; color: #A32D2D; }
+  .notas-comp { margin-top: 10px; border-top: 1px solid var(--color-border-secondary); padding-top: 10px; }
+  .nota-comp-block { margin-bottom: 6px; }
+  .nota-comp-label { font-size: 10px; font-weight: 600; display: flex; align-items: center; gap: 4px; margin-bottom: 2px; }
+  .nota-comp-label.sob { color: #3B6D11; }
+  .nota-comp-label.red { color: #A32D2D; }
+  .nota-comp-text { font-size: 11px; color: var(--color-text-secondary); line-height: 1.4; background: var(--color-background-secondary); border-radius: 4px; padding: 4px 8px; }
+  .ai-summary { background: var(--color-background-secondary); border-radius: var(--border-radius-md); padding: 14px; margin-top: 12px; font-size: 13px; color: var(--color-text-secondary); line-height: 1.7; min-height: 48px; border: 1px solid var(--color-border-secondary); }
+  .ai-label { font-size: 10px; font-weight: 600; color: var(--color-text-tertiary); text-transform: uppercase; letter-spacing: 0.06em; margin-bottom: 6px; display: flex; align-items: center; gap: 6px; }
+  .ai-dot { width: 7px; height: 7px; border-radius: 50%; background: #1D9E75; animation: pulse 1.5s infinite; }
+  .ai-dot.idle { animation: none; background: var(--color-border-secondary); }
+  @keyframes pulse { 0%,100%{opacity:1}50%{opacity:0.3} }
+  .generate-btn { margin-top: 12px; padding: 9px 22px; border-radius: var(--border-radius-md); border: 1px solid var(--color-border-secondary); background: var(--color-background-primary); color: var(--color-text-primary); font-size: 13px; cursor: pointer; font-weight: 500; display: flex; align-items: center; gap: 8px; }
+  .generate-btn:hover { background: var(--color-background-secondary); }
+</style>
+</head>
+<body>
+<div class="container">
+<div class="app">
+  <div class="header">
+    <i class="ti ti-clipboard-list" style="font-size:24px;color:#185FA5;"></i>
+    <h1>Score Card — Reclutamiento</h1>
+  </div>
+  <div class="tabs">
+    <button class="tab active" onclick="setTab('evaluacion')">Evaluación</button>
+    <button class="tab" onclick="setTab('comparativo')">Comparativo</button>
+  </div>
+
+  <div id="tabEvaluacion">
+    <div class="card">
+      <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:1rem;">
+        <div>
+          <div style="font-size:17px;font-weight:600;color:var(--color-text-primary)">Trámites</div>
+          <div style="font-size:12px;color:var(--color-text-secondary)">Administrativas operativas · 3 candidatos</div>
+        </div>
+      </div>
+      <div class="view-tabs">
+        <button class="view-tab active" onclick="setEval(1)"><i class="ti ti-user"></i> Evaluador 1</button>
+        <button class="view-tab" onclick="setEval(2)"><i class="ti ti-user"></i> Evaluador 2</button>
+      </div>
+      <div id="evalContext"></div>
+      <div class="candidate-inputs" id="candidateInputs"></div>
+      <div id="scorecardBody"></div>
+      <div class="notas-section">
+        <div class="notas-title"><i class="ti ti-notes" style="font-size:16px;color:var(--color-text-secondary);"></i> Notas y decisión por candidato</div>
+        <div class="notas-grid" id="notasGrid"></div>
+      </div>
+      <div class="export-bar">
+        <span class="export-hint">¿Listo? Comparte tu evaluación con Reclutamiento</span>
+        <button class="export-btn" onclick="openExport()"><i class="ti ti-share" style="font-size:15px;"></i> Compartir mi evaluación</button>
+      </div>
+    </div>
+  </div>
+
+  <div id="tabComparativo" style="display:none;">
+    <div class="card">
+      <div style="margin-bottom:1rem;">
+        <div style="font-size:17px;font-weight:600;color:var(--color-text-primary)">Comparativo — Trámites</div>
+        <div style="font-size:12px;color:var(--color-text-secondary)">Administrativas operativas</div>
+      </div>
+      <div class="comparativo" id="comparativoBody"></div>
+    </div>
+    <div class="card">
+      <div class="ai-label"><div class="ai-dot idle" id="aiDot"></div> Análisis IA</div>
+      <div class="ai-summary" id="aiSummary">Completa las evaluaciones y genera el análisis para ver el resumen aquí.</div>
+      <button class="generate-btn" onclick="generateAI()"><i class="ti ti-sparkles"></i> Generar análisis IA</button>
+    </div>
+  </div>
+</div>
+</div>
+
+<div class="modal-overlay" id="exportModal" style="display:none;" onclick="if(event.target===this)closeExport()">
+  <div class="modal">
+    <div class="modal-header">
+      <span class="modal-title">Resumen — Evaluador <span id="exportEvNum"></span></span>
+      <button class="modal-close" onclick="closeExport()">✕</button>
+    </div>
+    <div class="modal-body">
+      <div id="exportContent"></div>
+      <div class="export-footer">
+        <button class="copy-btn primary" onclick="copyText()"><i class="ti ti-copy"></i> Copiar texto</button>
+      </div>
+      <div class="copy-success" id="copySuccess">¡Copiado! Pégalo en WhatsApp o correo 👍</div>
+    </div>
+  </div>
+</div>
+
+<script>
+const COMPETENCIAS = {
+  "Operación": ["Ejecución operativa diaria","Seguimiento a procesos en campo/oficina","Resolución de incidencias","Cumplimiento de KPIs operativos"],
+  "Eficiencia en el puesto": ["Agilidad operativa","Multitarea","Adaptabilidad","Enfoque a resultados"],
+  "Fit cultural": ["Proactividad","Compromiso","Trabajo bajo presión","Sentido de urgencia"]
+};
+const MAX_SCORE = 48;
+let currentEval = 1;
+let state = {
+  candidatos: ["","",""],
+  ev1: {}, ev2: {},
+  notas: { 1:[{sob:"",red:"",decision:"",razon:""},{sob:"",red:"",decision:"",razon:""},{sob:"",red:"",decision:"",razon:""}], 2:[{sob:"",red:"",decision:"",razon:""},{sob:"",red:"",decision:"",razon:""},{sob:"",red:"",decision:"",razon:""}] }
+};
+
+function setTab(tab) {
+  document.getElementById('tabEvaluacion').style.display=tab==='evaluacion'?'':'none';
+  document.getElementById('tabComparativo').style.display=tab==='comparativo'?'':'none';
+  document.querySelectorAll('.tabs .tab').forEach((t,i)=>t.classList.toggle('active',(i===0&&tab==='evaluacion')||(i===1&&tab==='comparativo')));
+  if(tab==='comparativo') renderComparativo();
+}
+function setEval(n) {
+  currentEval=n;
+  document.querySelectorAll('.view-tab').forEach((t,i)=>t.classList.toggle('active',i===n-1));
+  renderEvalContext(); renderScorecard(); renderNotas();
+}
+function getEvalData(ev){return ev===1?state.ev1:state.ev2;}
+function getScoreCand(ev,cat,comp,ci){return getEvalData(ev)[cat+'||'+comp+'||'+ci]||0;}
+function setScoreCand(ev,cat,comp,ci,val){getEvalData(ev)[cat+'||'+comp+'||'+ci]=val;renderScorecard();}
+function candidatoTotalByEv(ev,ci){let t=0;Object.keys(COMPETENCIAS).forEach(cat=>COMPETENCIAS[cat].forEach(comp=>t+=getScoreCand(ev,cat,comp,ci)));return t;}
+function candidatoCatScore(ev,cat,ci){return COMPETENCIAS[cat].reduce((s,comp)=>s+getScoreCand(ev,cat,comp,ci),0);}
+function catMax(cat){return COMPETENCIAS[cat].length*4;}
+function scoreColor(s,max){const p=s/max;return p>=0.75?'#1D9E75':p>=0.5?'#BA7517':'#D85A30';}
+function setDecision(ev,ci,val){state.notas[ev][ci].decision=val;renderNotas();}
+
+function renderEvalContext() {
+  const el=document.getElementById('evalContext');
+  if(currentEval===2) {
+    const cands=state.candidatos;
+    let html='<div class="nota-prev"><strong>Evaluación del Evaluador 1:</strong><br>';
+    let any=false;
+    [0,1,2].forEach(i=>{
+      const s=candidatoTotalByEv(1,i),d=state.notas[1][i].decision;
+      if(s>0||d){any=true;const name=cands[i]||'Candidato '+(i+1);const dec=d==='si'?'✅ Pasa':d==='no'?'❌ No pasa':'';html+=`<strong>${name}:</strong> ${s}/${MAX_SCORE} pts ${dec?'· '+dec:''}<br>`;const n=state.notas[1][i];if(n.sob)html+=`&nbsp;&nbsp;★ ${n.sob}<br>`;if(n.red)html+=`&nbsp;&nbsp;⚑ ${n.red}<br>`;if(n.razon&&d==='no')html+=`&nbsp;&nbsp;Razón: ${n.razon}<br>`;}
+    });
+    if(!any)html+='Sin evaluaciones aún.';
+    html+='</div>';
+    el.innerHTML=html;
+  } else { el.innerHTML=''; }
+}
+
+function renderCandidateInputs() {
+  document.getElementById('candidateInputs').innerHTML=[0,1,2].map(i=>`
+    <div class="input-group">
+      <div class="input-label">Candidato ${i+1}</div>
+      <input class="cand-input" placeholder="Nombre..." value="${state.candidatos[i]}" oninput="state.candidatos[${i}]=this.value;renderScorecard();renderEvalContext();renderNotas();">
+    </div>`).join('');
+}
+
+function renderScorecard() {
+  const ev=currentEval,cands=state.candidatos;
+  let html='<div class="col-header"><div></div>'+[0,1,2].map(i=>`<div class="col-label">${cands[i]||'Cand. '+(i+1)}</div>`).join('')+'</div>';
+  Object.keys(COMPETENCIAS).forEach(cat=>{
+    html+=`<div class="ev-section"><div class="ev-section-title">${cat}</div>`;
+    COMPETENCIAS[cat].forEach(comp=>{
+      html+='<div class="competencia-row"><div class="comp-label">'+comp+'</div>';
+      [0,1,2].forEach(i=>{const val=getScoreCand(ev,cat,comp,i);html+='<div class="score-cell"><div class="score-buttons">'+[1,2,3,4].map(n=>`<button class="score-btn${val===n?' s'+n:''}" onclick="setScoreCand(${ev},'${cat}','${comp}',${i},${n})">${n}</button>`).join('')+'</div></div>';});
+      html+='</div>';
+    });
+    html+='</div>';
+  });
+  html+='<div class="total-row"><div class="total-label">Score total</div>'+[0,1,2].map(i=>{const t=candidatoTotalByEv(ev,i),c=scoreColor(t,MAX_SCORE);return `<div class="score-display"><div style="font-size:16px;font-weight:600;color:${c}">${t}<span style="font-size:11px;color:var(--color-text-tertiary)">/${MAX_SCORE}</span></div><div class="score-bar-wrap"><div class="score-bar" style="width:${Math.round(t/MAX_SCORE*100)}%;background:${c}"></div></div></div>`;}).join('')+'</div>';
+  document.getElementById('scorecardBody').innerHTML=html;
+}
+
+function renderNotas() {
+  const ev=currentEval,cands=state.candidatos,notas=state.notas[ev];
+  document.getElementById('notasGrid').innerHTML=[0,1,2].map(i=>{
+    const d=notas[i].decision;
+    return `<div class="nota-cand">
+      <div class="nota-cand-name">${cands[i]||'Candidato '+(i+1)}</div>
+      <div class="nota-block sobresaliente">
+        <div class="nota-block-header"><i class="ti ti-star" style="font-size:13px"></i> Puntos sobresalientes</div>
+        <textarea class="nota-textarea" rows="2" placeholder="Ej. Iniciativa, experiencia relevante..." oninput="state.notas[${ev}][${i}].sob=this.value;renderEvalContext();">${notas[i].sob}</textarea>
+      </div>
+      <div class="nota-block redflag">
+        <div class="nota-block-header"><i class="ti ti-flag" style="font-size:13px"></i> Red flags</div>
+        <textarea class="nota-textarea" rows="2" placeholder="Ej. Rotación frecuente, poca claridad..." oninput="state.notas[${ev}][${i}].red=this.value;renderEvalContext();">${notas[i].red}</textarea>
+      </div>
+      <div class="decision-block">
+        <div class="decision-header"><i class="ti ti-filter" style="font-size:12px;"></i> ¿Pasa a siguiente filtro?</div>
+        <div class="decision-btns">
+          <button class="decision-btn si${d==='si'?' active':''}" onclick="setDecision(${ev},${i},'si')">✓ Sí</button>
+          <button class="decision-btn no${d==='no'?' active':''}" onclick="setDecision(${ev},${i},'no')">✕ No</button>
+        </div>
+        <textarea class="decision-razon${d==='no'?' visible':''}" rows="2" placeholder="¿Por qué no pasa? Ej. No cumple perfil mínimo en operación..." oninput="state.notas[${ev}][${i}].razon=this.value;renderEvalContext();">${notas[i].razon}</textarea>
+      </div>
+    </div>`;
+  }).join('');
+}
+
+function openExport() {
+  const ev=currentEval,cands=state.candidatos,notas=state.notas[ev];
+  document.getElementById('exportEvNum').textContent=ev;
+  let html=[0,1,2].map(i=>{
+    const name=cands[i]||'Candidato '+(i+1),total=candidatoTotalByEv(ev,i),color=scoreColor(total,MAX_SCORE),d=notas[i].decision;
+    let decHtml='';
+    if(d==='si')decHtml=`<div class="export-decision si">✓ Pasa a siguiente filtro</div>`;
+    else if(d==='no')decHtml=`<div class="export-decision no">✕ No pasa${notas[i].razon?' — '+notas[i].razon:''}</div>`;
+    return `<div class="export-card">
+      <div class="export-card-header"><div class="export-card-name">${name}</div><div class="export-card-score" style="color:${color}">${total}<span style="font-size:12px;color:var(--color-text-tertiary)">/${MAX_SCORE}</span></div></div>
+      ${Object.keys(COMPETENCIAS).map(cat=>{const cs=candidatoCatScore(ev,cat,i),cMax=catMax(cat),pct=cMax>0?Math.round(cs/cMax*100):0,bc=scoreColor(cs,cMax);return `<div class="export-cat-row"><div class="export-cat-label">${cat}</div><div class="export-mini-wrap"><div class="export-mini-bar" style="width:${pct}%;background:${bc}"></div></div><div class="export-mini-val">${cs}/${cMax}</div></div>`;}).join('')}
+      <div class="export-nota">
+        ${notas[i].sob?`<div class="export-nota-row"><span style="color:#3B6D11;font-size:13px;flex-shrink:0;">★</span><div class="export-nota-text"><strong>Sobresaliente:</strong> ${notas[i].sob}</div></div>`:''}
+        ${notas[i].red?`<div class="export-nota-row"><span style="color:#A32D2D;font-size:13px;flex-shrink:0;">⚑</span><div class="export-nota-text"><strong>Red flag:</strong> ${notas[i].red}</div></div>`:''}
+      </div>
+      ${decHtml}
+    </div>`;
+  }).join('');
+  document.getElementById('exportContent').innerHTML=html;
+  document.getElementById('exportModal').style.display='flex';
+  document.getElementById('copySuccess').style.display='none';
+}
+function closeExport(){document.getElementById('exportModal').style.display='none';}
+
+function copyText() {
+  const ev=currentEval,cands=state.candidatos,notas=state.notas[ev];
+  let text=`📋 Evaluación Filtro ${ev} — Vacante Trámites\n${'─'.repeat(35)}\n`;
+  [0,1,2].forEach(i=>{
+    const name=cands[i]||'Candidato '+(i+1),total=candidatoTotalByEv(ev,i),d=notas[i].decision;
+    const decText=d==='si'?'✅ Pasa a siguiente filtro':d==='no'?'❌ No pasa':'⏳ Sin decisión';
+    text+=`\n👤 ${name} — ${total}/${MAX_SCORE} pts\n`;
+    Object.keys(COMPETENCIAS).forEach(cat=>{text+=`   ${cat}: ${candidatoCatScore(ev,cat,i)}/${catMax(cat)}\n`;});
+    if(notas[i].sob)text+=`   ★ Sobresaliente: ${notas[i].sob}\n`;
+    if(notas[i].red)text+=`   ⚑ Red flag: ${notas[i].red}\n`;
+    text+=`   ${decText}\n`;
+    if(d==='no'&&notas[i].razon)text+=`   Razón: ${notas[i].razon}\n`;
+  });
+  text+=`\n${'─'.repeat(35)}\nEnviado desde Score Card de Reclutamiento`;
+  navigator.clipboard.writeText(text).then(()=>{const el=document.getElementById('copySuccess');el.style.display='block';setTimeout(()=>el.style.display='none',3000);});
+}
+
+function renderComparativo() {
+  const cands=state.candidatos,totals=[0,1,2].map(i=>candidatoTotalByEv(1,i)+candidatoTotalByEv(2,i)),maxT=Math.max(...totals);
+  document.getElementById('comparativoBody').innerHTML=[0,1,2].map(i=>{
+    const name=cands[i]||'Candidato '+(i+1),t1=candidatoTotalByEv(1,i),t2=candidatoTotalByEv(2,i),total=t1+t2,maxC=MAX_SCORE*2,color=scoreColor(total,maxC),isW=total===maxT&&total>0;
+    const n1=state.notas[1][i],n2=state.notas[2][i];
+    let pillsHtml='<div style="display:flex;flex-wrap:wrap;gap:4px;margin-top:8px;">';
+    if(n1.decision)pillsHtml+=`<span class="comp-decision-pill ${n1.decision}">Filtro 1: ${n1.decision==='si'?'✓ Pasa':'✕ No pasa'}</span>`;
+    if(n2.decision)pillsHtml+=`<span class="comp-decision-pill ${n2.decision}">Filtro 2: ${n2.decision==='si'?'✓ Pasa':'✕ No pasa'}</span>`;
+    pillsHtml+='</div>';
+    let notasHtml='';
+    if(n1.sob||n1.red||n1.razon||n2.sob||n2.red||n2.razon){
+      notasHtml='<div class="notas-comp">';
+      if(n1.sob)notasHtml+=`<div class="nota-comp-block"><div class="nota-comp-label sob">★ Ev.1 — Sobresaliente</div><div class="nota-comp-text">${n1.sob}</div></div>`;
+      if(n1.red)notasHtml+=`<div class="nota-comp-block"><div class="nota-comp-label red">⚑ Ev.1 — Red flag</div><div class="nota-comp-text">${n1.red}</div></div>`;
+      if(n1.razon&&n1.decision==='no')notasHtml+=`<div class="nota-comp-block"><div class="nota-comp-label red">✕ Ev.1 — Razón</div><div class="nota-comp-text">${n1.razon}</div></div>`;
+      if(n2.sob)notasHtml+=`<div class="nota-comp-block"><div class="nota-comp-label sob">★ Ev.2 — Sobresaliente</div><div class="nota-comp-text">${n2.sob}</div></div>`;
+      if(n2.red)notasHtml+=`<div class="nota-comp-block"><div class="nota-comp-label red">⚑ Ev.2 — Red flag</div><div class="nota-comp-text">${n2.red}</div></div>`;
+      if(n2.razon&&n2.decision==='no')notasHtml+=`<div class="nota-comp-block"><div class="nota-comp-label red">✕ Ev.2 — Razón</div><div class="nota-comp-text">${n2.razon}</div></div>`;
+      notasHtml+='</div>';
+    }
+    return `<div class="cand-card ${isW?'winner':''}">
+      ${isW?'<span class="winner-badge">Mayor score</span>':''}
+      <div class="cand-name">${name}</div>
+      <div class="cand-total" style="color:${color}">${total}<span style="font-size:13px;font-weight:400;color:var(--color-text-tertiary)">/${maxC}</span></div>
+      <div style="font-size:12px;color:var(--color-text-tertiary);margin-bottom:8px">Ev.1: ${t1} · Ev.2: ${t2}</div>
+      ${Object.keys(COMPETENCIAS).map(cat=>{const cs=candidatoCatScore(1,cat,i)+candidatoCatScore(2,cat,i),cMax=catMax(cat)*2,pct=cMax>0?Math.round(cs/cMax*100):0;return `<div class="mini-bar-row"><div class="mini-bar-label">${cat}</div><div class="mini-bar-wrap"><div class="mini-bar" style="width:${pct}%;background:${scoreColor(cs,cMax)}"></div></div><div class="mini-val">${cs}/${cMax}</div></div>`;}).join('')}
+      ${pillsHtml}${notasHtml}
+    </div>`;
+  }).join('');
+}
+
+async function generateAI() {
+  const dot=document.getElementById('aiDot'),summary=document.getElementById('aiSummary');
+  dot.classList.remove('idle');summary.textContent='Analizando evaluaciones...';
+  const cands=state.candidatos;let dataStr='';
+  [0,1,2].forEach(i=>{
+    const name=cands[i]||'Candidato '+(i+1),t1=candidatoTotalByEv(1,i),t2=candidatoTotalByEv(2,i),n1=state.notas[1][i],n2=state.notas[2][i];
+    dataStr+=`\n${name}: Ev1=${t1}/${MAX_SCORE} (decisión: ${n1.decision||'pendiente'}), Ev2=${t2}/${MAX_SCORE} (decisión: ${n2.decision||'pendiente'}), Total=${t1+t2}/${MAX_SCORE*2}`;
+    Object.keys(COMPETENCIAS).forEach(cat=>{dataStr+=` | ${cat}: ${candidatoCatScore(1,cat,i)+candidatoCatScore(2,cat,i)}/${catMax(cat)*2}`;});
+    if(n1.sob)dataStr+=` | Sobresaliente Ev1: ${n1.sob}`;if(n1.red)dataStr+=` | Red flag Ev1: ${n1.red}`;if(n1.razon)dataStr+=` | Razón Ev1: ${n1.razon}`;
+    if(n2.sob)dataStr+=` | Sobresaliente Ev2: ${n2.sob}`;if(n2.red)dataStr+=` | Red flag Ev2: ${n2.red}`;if(n2.razon)dataStr+=` | Razón Ev2: ${n2.razon}`;
+  });
+  try {
+    const res=await fetch('https://api.anthropic.com/v1/messages',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({model:'claude-sonnet-4-20250514',max_tokens:1000,messages:[{role:'user',content:`Eres un asistente de reclutamiento. Analiza scores, notas y decisiones de filtro para la vacante de Trámites (perfil Administrativo Operativo). Da un resumen ejecutivo de 3-4 oraciones con conclusión y recomendación clara. Sé conciso.\n\nDatos:${dataStr}`}]})});
+    const data=await res.json();
+    summary.textContent=data.content?.map(b=>b.text||'').join('')||'No se pudo generar el análisis.';
+  } catch(e){summary.textContent='Error al conectar con la IA.';}
+  dot.classList.add('idle');
+}
+
+renderCandidateInputs();renderScorecard();renderNotas();renderEvalContext();
+</script>
+</body>
+</html>
